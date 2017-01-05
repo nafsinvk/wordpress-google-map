@@ -40,6 +40,10 @@ class Nafs_Gmap_Public {
 	private $version;
 	
 	private $map_script;
+	private $map_script_additional;
+	private $error_message;
+	
+	private $script_params;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -52,6 +56,7 @@ class Nafs_Gmap_Public {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->map_script_additional='';
 		add_shortcode( 'nafs_gmap', array($this, 'gmap_shortcode') );
 
 	}
@@ -110,10 +115,9 @@ class Nafs_Gmap_Public {
 		$options = get_option('naf_gmap_option_name', 'default text');
 		return  $option = $options['naf_gmap_api_key'];
 	}
-	
-	
-	function gmap_shortcode( $atts, $content = null ) {
-	$a = shortcode_atts( array(
+	function setScriptDefaults()
+	{
+		$this->script_params = array(
 		'wrapper' => 'nafgmap_wrapper',
 		'id' => '',
 		'lat' => '26.228611',
@@ -122,19 +126,18 @@ class Nafs_Gmap_Public {
 		'height' => '350px',
 		'zoom' => '13',
 		'center' => '26.228239, 50.583331'
-	), $atts );
+		);
+	}
+	
+	function gmap_shortcode( $atts, $content = null ) {
+	$this->setScriptDefaults();	
+	if($atts['id'])
+	{
+	$this->createFromPost($atts['id']);
+	}
+	$a = shortcode_atts( $this->script_params, $atts ); 
 	$wrap_id=esc_attr($a['wrapper']).rand ();
-	$this->map_script = "function initMap".$wrap_id."() {
-        var uluru = {lat: ".esc_attr($a['lat']).", lng: ".esc_attr($a['lng'])."};
-        var map = new google.maps.Map(document.getElementById('".$wrap_id."'), {
-          zoom: ".esc_attr($a['zoom']).",
-          center: uluru,
-        });
-        var marker = new google.maps.Marker({
-          position: uluru,
-          map: map
-        });
-      }function initialize() {initMap".$wrap_id."();}google.maps.event.addDomListener(window, 'load', initialize);";
+	$this->setMapScript($wrap_id, $a);
 	echo '<script>';
 	echo $this->map_script;
 	echo '</script>';
@@ -145,6 +148,56 @@ class Nafs_Gmap_Public {
 	echo '</style>';
 	return       '<div class="' . esc_attr($a['wrapper']) . '" id="'.$wrap_id.'">' . $content . '</div>';
 	}
+	
+	function createFromPost($id)
+	{
+		$thePostRet = get_post($id); 
+		if(!empty($thePostRet) and $thePostRet->post_type == 'nafs_gmap_item')
+		{
+		$this->setInfoWindow($thePostRet->post_content);
+			
+		$lat_lng = explode(',',(get_post_meta( $id, 'lat_long_value', true ))); 
+		$this->script_params['lat'] = trim($lat_lng [0]);
+		$this->script_params['lng'] = trim($lat_lng [1]);
+		}
+		else
+		{
+		if($thePostRet->post_type != 'nafs_gmap_item')
+			$this->error_message = 'The mentioned post id is not of type Google map item';
+		if(empty($thePostRet->post_type))
+			$this->error_message = 'The post with id '.$id.'was not found';
+		return false;
+		}
+
+		
+	}
+	function setInfoWindow($content)
+	{
+		$this->map_script_additional .= '
+		var contentString = '.json_encode($content).'
+		var infowindow = new google.maps.InfoWindow({
+										  content: contentString
+										});';
+		$this->map_script_additional .= "marker.addListener('click', function() {
+										  infowindow.open(map, marker);
+										});";
+	}
+	function setMapScript($wrap, $a, $html='')
+	{
+		$this->map_script = "function initMap".$wrap."() {
+        var uluru = {lat: ".esc_attr($a['lat']).", lng: ".esc_attr($a['lng'])."};
+        var map = new google.maps.Map(document.getElementById('".$wrap."'), {
+          zoom: ".esc_attr($a['zoom']).",
+          center: uluru,
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+		".$this->map_script_additional."
+      }function initialize() {initMap".$wrap."();}google.maps.event.addDomListener(window, 'load', initialize);";
+	}
+
 	
 
 }
