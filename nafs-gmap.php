@@ -71,15 +71,22 @@ function nafs_gmap_custom_post_type()
                        [
                            'labels'      => [
                                'name'          => __('Maps'),
-                               'singular_name' => __('Map'),
+                               'singular_name' => __('Map'),'featured_image'        => _x( 'Book Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'textdomain' ),
+        					'featured_image'        => _x( 'Map Marker image', 'Overrides default marker image', 'textdomain' ),
+							'set_featured_image'    => _x( 'Set Map Marker image', '', 'textdomain' ),
+        					'remove_featured_image' => _x( 'Remove Map Marker image', '', 'textdomain' ),
+        					'use_featured_image'    => _x( 'Use as Map Marker image', '', 'textdomain' ),
                            ],
                            'public'      => true,
                            'has_archive' => true,
                            'rewrite'     => ['slug' => 'nafs_g_maps'], // my custom slug
-						   'supports' => array( 'title', 'editor', 'custom-fields' )
+						   'supports' => array( 'title', 'editor', 'custom-fields', 'thumbnail' )
                        ]
     );
 }
+
+
+
 function run_nafs_gmap() {
 
 	$plugin = new Nafs_Gmap();

@@ -125,7 +125,8 @@ class Nafs_Gmap_Public {
 		'width' => '100%',
 		'height' => '350px',
 		'zoom' => '13',
-		'center' => '26.228239, 50.583331'
+		'center' => '26.228239, 50.583331',
+		'icon'   => plugin_dir_url(__FILE__).'img/marker.png'
 		);
 	}
 	
@@ -154,11 +155,15 @@ class Nafs_Gmap_Public {
 		$thePostRet = get_post($id); 
 		if(!empty($thePostRet) and $thePostRet->post_type == 'nafs_gmap_item')
 		{
-		$this->setInfoWindow($thePostRet->post_content);
-			
+		$this->setInfoWindow($thePostRet->post_content);	
 		$lat_lng = explode(',',(get_post_meta( $id, 'lat_long_value', true ))); 
 		$this->script_params['lat'] = trim($lat_lng [0]);
 		$this->script_params['lng'] = trim($lat_lng [1]);
+		
+		if(has_post_thumbnail($thePostRet))
+		{
+			$this->script_params['icon'] = get_the_post_thumbnail_url($thePostRet);
+		}
 		}
 		else
 		{
@@ -192,7 +197,8 @@ class Nafs_Gmap_Public {
         });
         var marker = new google.maps.Marker({
           position: uluru,
-          map: map
+          map: map,
+		  icon : '".$a['icon']."'
         });
 		".$this->map_script_additional."
       }function initialize() {initMap".$wrap."();}google.maps.event.addDomListener(window, 'load', initialize);";
