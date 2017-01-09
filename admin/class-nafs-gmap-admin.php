@@ -229,6 +229,6 @@ public function page_init()
 function getGmapAPICode()
 	{
 		$options = get_option('naf_gmap_option_name', 'default text');
-		return  $option = $options['naf_gmap_api_key'];
+		return  $option = (is_array($options) and isset($options['naf_gmap_api_key']))?$options['naf_gmap_api_key']:'';
 	}
 }
