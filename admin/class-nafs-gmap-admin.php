@@ -224,6 +224,13 @@ public function page_init()
 			wp_enqueue_script( ($this->plugin_name.'_google'), '//maps.googleapis.com/maps/api/js?key='.$jsapi.'&callback=initMap', array(), $this->version, true );
 			echo '<script type="text/javascript">function initMap(){return ;}</script>';
 		}
+		else
+		{
+			$url = admin_url('admin.php?page=nafs-gmap-admin');
+				echo '<div class="error notice">
+					<p>Please setup a google map API key <a href="'.$url.'">here</a>.</p>
+					</div>';
+		}
 
 	}
 function getGmapAPICode()
