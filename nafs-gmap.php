@@ -71,7 +71,14 @@ function nafs_gmap_custom_post_type()
                        [
                            'labels'      => [
                                'name'          => __('Maps'),
-                               'singular_name' => __('Map'),'featured_image'        => _x( 'Book Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'textdomain' ),
+                               'singular_name' => __('Map'),
+							   'add_new_item'       => __( 'Add New Map', 'textdomain' ),
+									'new_item'           => __( 'New Map', 'textdomain' ),
+									'edit_item'          => __( 'Edit Map', 'textdomain' ),
+									'view_item'          => __( 'View Map', 'textdomain' ),
+									'all_items'          => __( 'All Maps', 'textdomain' ),
+									'search_items'       => __( 'Search Map', 'textdomain' ),
+							   'featured_image'        => _x( 'Book Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'textdomain' ),
         					'featured_image'        => _x( 'Map Marker image', 'Overrides default marker image', 'textdomain' ),
 							'set_featured_image'    => _x( 'Set Map Marker image', '', 'textdomain' ),
         					'remove_featured_image' => _x( 'Remove Map Marker image', '', 'textdomain' ),
