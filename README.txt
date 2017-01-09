@@ -14,7 +14,7 @@ A simple Google map plugin, works great without any expetise in programming
 
 Simple google map plugin
 
-East to setup
+Easy to setup
 
 *   Install the plugin
 *   Configure the API key and optional lat lng
@@ -27,17 +27,15 @@ stable.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
 
 1. Upload plugin to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+How to install the plugin?
+Easy, like any other plugin, upload and activate
 
-Will be added soon
+
 
 == Screenshots ==
 
