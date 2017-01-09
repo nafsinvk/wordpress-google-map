@@ -132,7 +132,7 @@ class Nafs_Gmap_Public {
 	
 	function gmap_shortcode( $atts, $content = null ) {
 	$this->setScriptDefaults();	
-	if($atts['id'])
+	if(isset($atts['id']) and $atts['id'])
 	{
 	$this->createFromPost($atts['id']);
 	}

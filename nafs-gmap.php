@@ -80,7 +80,8 @@ function nafs_gmap_custom_post_type()
                            'public'      => true,
                            'has_archive' => true,
                            'rewrite'     => ['slug' => 'nafs_g_maps'], // my custom slug
-						   'supports' => array( 'title', 'editor', 'custom-fields', 'thumbnail' )
+						   'supports' => array( 'title', 'editor', 'custom-fields', 'thumbnail' ),
+						   'menu_icon' => 'dashicons-location'
                        ]
     );
 }
@@ -88,7 +89,6 @@ function nafs_gmap_custom_post_type()
 
 
 function run_nafs_gmap() {
-
 	$plugin = new Nafs_Gmap();
 	$plugin->run();
 	add_action('init', 'nafs_gmap_custom_post_type');

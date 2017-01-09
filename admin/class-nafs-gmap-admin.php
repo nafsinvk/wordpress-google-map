@@ -222,6 +222,7 @@ public function page_init()
 		{
 			
 			wp_enqueue_script( ($this->plugin_name.'_google'), '//maps.googleapis.com/maps/api/js?key='.$jsapi.'&callback=initMap', array(), $this->version, true );
+			echo '<script type="text/javascript">function initMap(){return ;}</script>';
 		}
 
 	}

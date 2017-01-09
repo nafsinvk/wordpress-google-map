@@ -133,6 +133,7 @@ class Nafs_Gmap extends WP_Widget{
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'tinymce-custom-class-master/tinymce-custom-class.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-nafs-gmap-admin.php';
 
 		/**

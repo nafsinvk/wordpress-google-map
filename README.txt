@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Wordpress Google Map Plugin ===
 Contributors: (this should be a list of wordpress.org userid's)
 Donate link: nafsin.info/
 Tags: comments, spam
