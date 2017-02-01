@@ -58,7 +58,8 @@ class Nafs_Gmap_Public {
 		$this->version = $version;
 		$this->map_script_additional='';
 		add_shortcode( 'nafs_gmap', array($this, 'gmap_shortcode') );
-
+		
+		$this->options = get_option('naf_gmap_option_name', 'default text');
 	}
 
 	/**
@@ -112,14 +113,17 @@ class Nafs_Gmap_Public {
 	}
 	function getGmapAPICode()
 	{
-		$options = get_option('naf_gmap_option_name', 'default text');
-		return  $option = $options['naf_gmap_api_key'];
+		if(is_array($this->options))
+		return  $option = isset($this->options['naf_gmap_api_key'])?$this->options['naf_gmap_api_key']:false;
+		else
+		return false;
 	}
 	function setScriptDefaults()
 	{
 		$this->script_params = array(
 		'wrapper' => 'nafgmap_wrapper',
 		'id' => '',
+		'cat_id' =>'',
 		'lat' => '26.228611',
 		'lng' => '50.589220',
 		'width' => '100%',
@@ -128,20 +132,40 @@ class Nafs_Gmap_Public {
 		'center' => '26.228239, 50.583331',
 		'icon'   => plugin_dir_url(__FILE__).'img/marker.png'
 		);
+		if(isset($this->options['naf_gmap_lat_long']))
+		{
+		$default_lat_lng = explode(',',($this->options['naf_gmap_lat_long']));
+		if(is_array($default_lat_lng) and isset($default_lat_lng[0]) and  isset($default_lat_lng[1]) )
+		{
+			$this->script_params['lat'] = $default_lat_lng[0];
+			$this->script_params['lng'] = $default_lat_lng[1];
+			$this->script_params['center'] = $this->options['naf_gmap_lat_long'];
+		}
+		}
 	}
 	
 	function gmap_shortcode( $atts, $content = null ) {
-	$this->setScriptDefaults();	
+		
+	$this->setScriptDefaults();		
+	$wrap_id=esc_attr($a['wrapper']).rand ();
+	$a = shortcode_atts( $this->script_params, $atts ); 
+	if(isset($atts['cat_id']) and $atts['cat_id'])
+	{
+	echo '<script>';
+	echo $this->createFromCat($atts['cat_id'], $wrap_id);
+	echo '</script>';
+	}
+	else
+	{
 	if(isset($atts['id']) and $atts['id'])
 	{
 	$this->createFromPost($atts['id']);
 	}
-	$a = shortcode_atts( $this->script_params, $atts ); 
-	$wrap_id=esc_attr($a['wrapper']).rand ();
 	$this->setMapScript($wrap_id, $a);
 	echo '<script>';
 	echo $this->map_script;
 	echo '</script>';
+	}
 	echo '<style>';
 	echo '.' . esc_attr($a['wrapper']) . "{
 		  height: ".esc_attr($a['height']).";
@@ -149,7 +173,64 @@ class Nafs_Gmap_Public {
 	echo '</style>';
 	return       '<div class="' . esc_attr($a['wrapper']) . '" id="'.$wrap_id.'">' . $content . '</div>';
 	}
-	
+	function createFromCat($id, $wrapper)
+	{
+		$maps = get_posts(array('post_type'=> 'nafs_gmap_item',  'tax_query' => array( array( 'taxonomy' => 'nafs_gmap_cat', 'field' => 'id', 'terms' => $id )) )); //print_r($maps);
+		$marker ="// Multiple Markers
+    	var markers = [";
+		$infowindow ="var infoWindowContent = [";
+		foreach($maps as $map)
+		{
+			$lat_lng = explode(',',(get_post_meta( $map->ID, 'lat_long_value', true ))); 
+			$marker.="['".get_the_title($map->ID)."', ".$lat_lng [0].",".$lat_lng [1].", '".get_the_post_thumbnail_url($map->ID)."'],";
+			$infowindow .="[".json_encode($map->post_content)."],";
+		}
+		$marker .="];\n";
+		$infowindow .="];\n";
+		$totalScript ="function initialize() {
+    var map;
+    var bounds = new google.maps.LatLngBounds();
+    var mapOptions = {
+        mapTypeId: 'roadmap'
+    };
+                    
+    // Display a map on the page
+    map = new google.maps.Map(document.getElementById(\"".$wrapper."\"), mapOptions);
+    map.setTilt(45);";
+		$totalScript .= $marker.$infowindow;
+		$totalScript .=" // Display multiple markers on a map
+    var infoWindow = new google.maps.InfoWindow(), marker, i;
+    
+    // Loop through our array of markers & place each one on the map  
+    for( i = 0; i < markers.length; i++ ) {
+        var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+        bounds.extend(position);
+        marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: markers[i][0],
+			icon : markers[i][3]
+        });
+        
+        // Allow each marker to have an info window    
+        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+            return function() {
+                infoWindow.setContent(infoWindowContent[i][0]);
+                infoWindow.open(map, marker);
+            }
+        })(marker, i));
+
+        // Automatically center the map fitting all markers on the screen
+        map.fitBounds(bounds);
+    }
+
+    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+        this.setZoom(14);
+        google.maps.event.removeListener(boundsListener);
+    });}google.maps.event.addDomListener(window, 'load', initialize);";
+	return $totalScript;
+	}
 	function createFromPost($id)
 	{
 		$thePostRet = get_post($id); 

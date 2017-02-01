@@ -65,8 +65,21 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-nafs-gmap.php';
  *
  * @since    1.0.0
  */
+function nafs_gmap_cat_init() {
+	// create a new taxonomy
+	register_taxonomy(
+		'nafs_gmap_cat',
+		'nafs_gmap_item',
+		array(
+			'label' => __( 'Map Category' ),
+			'rewrite' => array( 'slug' => 'nafs_gmap_cat' ),
+			'show_ui' => true
+		)
+	);
+}
 function nafs_gmap_custom_post_type()
 {
+	
     register_post_type('nafs_gmap_item',
                        [
                            'labels'      => [
@@ -87,18 +100,51 @@ function nafs_gmap_custom_post_type()
                            'public'      => true,
                            'has_archive' => true,
                            'rewrite'     => ['slug' => 'nafs_g_maps'], // my custom slug
-						   'supports' => array( 'title', 'editor', 'custom-fields', 'thumbnail' ),
-						   'menu_icon' => 'dashicons-location'
+						   'supports' => array( 'title', 'editor', 'thumbnail' ),
+						   'menu_icon' => 'dashicons-location',
+						   'taxonomies'  => array( 'Location Categories')
                        ]
     );
 }
+
+function nafs_gmap_add_taxonomy_filters() {
+	global $typenow;
+ 
+	// an array of all the taxonomyies you want to display. Use the taxonomy name or slug
+	$taxonomies = array('nafs_gmap_cat');
+ 
+	// must set this to the post type you want the filter(s) displayed on
+	if( $typenow == 'nafs_gmap_item' ){
+ 
+		foreach ($taxonomies as $tax_slug) {
+			$tax_obj = get_taxonomy($tax_slug);
+			$tax_name = $tax_obj->labels->name;
+			$terms = get_terms($tax_slug);
+			if(count($terms) > 0) {
+				echo "<select name='$tax_slug' id='$tax_slug' class='postform'>";
+				echo "<option value=''>Show All $tax_name</option>";
+				foreach ($terms as $term) { 
+					echo '<option value='. $term->slug, $_GET[$tax_slug] == $term->slug ? ' selected="selected"' : '','>' . $term->name .' (' . $term->count .')</option>'; 
+				}
+				echo "</select>";
+			}
+		}
+	}
+}
+
 
 
 
 function run_nafs_gmap() {
 	$plugin = new Nafs_Gmap();
 	$plugin->run();
+	$options = get_option('naf_gmap_option_name', 'default text');
+	if(is_array($options) && isset($options['naf_gmap_post_type_required']) and $options['naf_gmap_post_type_required']==1)
+	{
 	add_action('init', 'nafs_gmap_custom_post_type');
+	add_action( 'init', 'nafs_gmap_cat_init' );
+	add_action( 'restrict_manage_posts', 'nafs_gmap_add_taxonomy_filters' );
+	}
 	add_action( 'add_meta_boxes', array($plugin, 'lat_long_box') );
 	add_action( 'save_post', array($plugin,'lat_long_box_save'));
 }

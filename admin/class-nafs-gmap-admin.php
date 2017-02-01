@@ -82,7 +82,6 @@ class Nafs_Gmap_Admin {
         // Set class property
         $this->options = get_option( 'naf_gmap_option_name' );
        echo  '<div class="wrap">
-            <h1>Google Map Settings</h1>
             <form method="post" action="options.php">';
                 // This prints out all hidden setting fields
                 settings_fields( 'naf_gmap_option_group' );
@@ -122,7 +121,14 @@ public function page_init()
             array( $this, 'naf_gmap_lat_long_callback' ), 
             'nafs-gmap-admin', 
             'setting_section_id'
-        );      
+        );     
+        add_settings_field(
+            'naf_post_type_required', 
+            'Do you require a post type', 
+            array( $this, 'naf_gmap_post_type_required_callback' ), 
+            'nafs-gmap-admin', 
+            'setting_section_id'
+        );   
     }
 	
 	/**
@@ -138,6 +144,8 @@ public function page_init()
 
         if( isset( $input['naf_gmap_lat_long'] ) )
             $new_input['naf_gmap_lat_long'] = sanitize_text_field( $input['naf_gmap_lat_long'] );
+        if( isset( $input['naf_gmap_post_type_required'] ) )
+            $new_input['naf_gmap_post_type_required'] = sanitize_text_field( $input['naf_gmap_post_type_required'] );
 
         return $new_input;
     }
@@ -172,6 +180,16 @@ public function page_init()
         );
     }
 
+    /** 
+     * Get the settings option array and print one of its values
+     */
+    public function naf_gmap_post_type_required_callback()
+    {
+        printf(
+            '<input type="checkbox" id="naf_gmap_post_type_required" name="naf_gmap_option_name[naf_gmap_post_type_required]" value="1" %s/>',
+            isset( $this->options['naf_gmap_post_type_required'] ) ?'checked' : ''
+        );
+    }
 	/**
 	 * Register the stylesheets for the admin area.
 	 *

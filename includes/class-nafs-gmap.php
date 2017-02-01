@@ -280,13 +280,15 @@ public function widget( $args, $instance ) {
   $lat_long_value = isset($custom["lat_long_value"])?$custom["lat_long_value"][0]:'';
 		wp_nonce_field( plugin_basename( __FILE__ ), 'lat_long_box_content_nonce' );
   		echo '<label for="lat_long_value">Lat, Long</label>';
-  		echo '<input type="text" id="lat_long_value" name="lat_long_value" placeholder="enter Lat, Long" value="'.$lat_long_value.'" />';
+  		echo '<input required type="text" id="lat_long_value" name="lat_long_value" placeholder="enter Lat, Long" value="'.$lat_long_value.'" />';
 
 	}
 	
 	function lat_long_box_save( $post_id ) {
 	if(!isset($_POST['lat_long_box_content_nonce']))
+	{
 	return ;
+	}
 	  if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
 	  return;
 	

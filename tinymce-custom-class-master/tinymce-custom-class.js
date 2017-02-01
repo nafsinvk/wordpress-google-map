@@ -56,8 +56,9 @@ function nafsPairIt(k, id)
 			var i=0;
 			jQuery('#nafs_gmap_popuptrigger').trigger('click');
 			jQuery('.nafs_gmap_insertlink').click(function(){
-				var theClicked = jQuery(this).attr('data-attr-id');
-				var shortCode = '[nafs_gmap id=\"'+theClicked+'\"][/nafs_gmap]';
+				var theClicked	= jQuery(this).attr('data-attr-id');
+				var keyType		= jQuery(this).attr('data-attr-item');
+				var shortCode	= '[nafs_gmap wrapper=\"nafs_gmap_wrap\" '+keyType+'=\"'+theClicked+'\"][/nafs_gmap]';
 				if(++i==1)
 				{
 				editor.execCommand('mceInsertContent', false, shortCode);

@@ -21,6 +21,7 @@ class TinyMCE_Custom_Class {
 		    add_action( 'admin_enqueue_scripts', array( &$this, 'admin_scripts_css' ) );
 		    add_action( 'admin_print_footer_scripts', array( &$this, 'admin_footer_scripts' ) );
 		}
+		$this->options = get_option('naf_gmap_option_name', 'default text');
 
     }
 
@@ -57,7 +58,7 @@ class TinyMCE_Custom_Class {
 	function add_tinymce_plugin( $plugin_array ) {
 		// Check if the logged in WordPress User can edit Posts or Pages
 	    
-	 
+	 $display_prebuilt = (is_array($this->options) && isset($this->options['naf_gmap_post_type_required']) and $this->options['naf_gmap_post_type_required']==1)?true:false;
 	    // Check if the logged in WordPress User has the Visual Editor enabled
 	    // If not, don't register our TinyMCE plugin
 	    if ( get_user_option( 'rich_editing' ) == 'true' && current_user_can( 'edit_posts' ) &&current_user_can( 'edit_pages' )) {
@@ -65,18 +66,25 @@ class TinyMCE_Custom_Class {
 	 echo '<table id="map-insert-info" style="height:0; display:block;"><tbody><tr><td>	<div id="my-content-id" style="display:none;">
 	 <div class="wrap">
 	 <div id="tabs-container">
-    <ul class="tabs-menu">
-            <li class="current"><a href="#tab-1">Insert from pre-built</a></li>
-        	<li><a href="#tab-2">Insert New</a></li>
+    <ul class="tabs-menu">';
+     echo '   	<li class="current"><a href="#tab-1">Insert New</a></li>';
+	if($display_prebuilt)
+     echo '       <li><a href="#tab-2">Insert from pre-built</a></li>';
+     echo '   	<li class="current"><a href="#tab-3">Insert Category</a></li>
     </ul>
 		 	';
-			echo '<div class="tab">
-			<div id="tab-1" class="tab-content">';
+			echo '<div class="tab"><div id="tab-1" class="tab-content">';
+			echo $current_maps = $this->getForm();
+			echo '</div>';
+			if($display_prebuilt):
+			echo '<div id="tab-2" class="tab-content">';
 			echo $current_maps = $this->getMaps();
 			echo '</div>';
-			echo '<div id="tab-2" class="tab-content">';
-			echo $current_maps = $this->getForm();
-			echo '</div></div>';
+			endif;
+			echo '<div id="tab-3" class="tab-content">';
+			echo $current_maps = $this->getMapCats();
+			echo '</div>';
+			echo '</div>';
    echo '
 	</div>
 		 </div></div></td></tr><tr><td>';
@@ -119,6 +127,30 @@ function getForm()
 	</div>
 	</div>';
 }
+function getMapCats()
+{
+	$map_cats = get_categories( array(
+							'taxonomy' => 'nafs_gmap_cat'	
+							) );
+	$ret='<table align="center" width="100%" border="0" cellspacing="0" cellpadding="0" class="wp-list-table widefat fixed striped cats">
+  			<tbody>
+    		<tr>
+			  <th>ID</th>
+			  <th>Map Category</th>
+			  <th>Insert</th>
+    		</tr>';
+    foreach ( $map_cats as $map_cat ) :
+	$ret .=  '<tr>
+			  <td>'.$map_cat->term_id.'</td>
+			  <td>'.$map_cat->name.'</td>
+			  <td><a class="nafs_gmap_insertlink" data-attr-item="cat_id" data-attr-id="'.$map_cat->term_id.'" >Insert</a></td>
+    		  </tr>';
+			  $row_count++;
+	endforeach;
+   	$ret .='	</tbody>
+			</table>';
+	return $ret;
+}
 function getMaps()
 {
 	
@@ -136,7 +168,7 @@ function getMaps()
 	$ret .=  '<tr>
 			  <td>'.$map->ID.'</td>
 			  <td>'.$map->post_title.'</td>
-			  <td><a class="nafs_gmap_insertlink" data-attr-id="'.$map->ID.'" >Insert</a></td>
+			  <td><a class="nafs_gmap_insertlink"  data-attr-item="id"  data-attr-id="'.$map->ID.'" >Insert</a></td>
     		  </tr>';
 			  $row_count++;
 	endforeach;
@@ -146,7 +178,7 @@ function getMaps()
 	}
 	else
 	{
-	return '';
+	return '<p class="warnging">There is no content of type, <em>map</em></p>';
 	}
 }
 	/**
