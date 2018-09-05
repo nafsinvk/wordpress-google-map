@@ -7,17 +7,17 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              nafsin.info/
+ * @link              https://github.com/nafsinvk
  * @since             1.0.0
  * @package           Nafs_Gmap
  *
  * @wordpress-plugin
  * Plugin Name:       Google map Widget
- * Plugin URI:        nafsin.info/wp/plugins/nafs-gmap
+ * Plugin URI:        https://github.com/nafsinvk/wordpress-google-map
  * Description:       Simple Google Map plugin, can be used free across the web. 
- * Version:           1.0.0
+ * Version:           2.2.1
  * Author:            Nafsin Vattakandy
- * Author URI:        nafsin.info/
+ * Author URI:        nafsi.in/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       nafs-gmap

@@ -68,35 +68,55 @@ class TinyMCE_Custom_Class {
 	 <div id="tabs-container">
     <ul class="tabs-menu">';
      echo '   	<li class="current"><a href="#tab-1">Insert New</a></li>';
-	if($display_prebuilt)
+	if($display_prebuilt):
      echo '       <li><a href="#tab-2">Insert from pre-built</a></li>';
-     echo '   	<li class="current"><a href="#tab-3">Insert Category</a></li>
-    </ul>
+     echo '   	<li><a href="#tab-3">Insert Category</a></li>';
+	 endif;
+     echo '   	</ul>
 		 	';
 			echo '<div class="tab"><div id="tab-1" class="tab-content">';
 			echo $current_maps = $this->getForm();
 			echo '</div>';
 			if($display_prebuilt):
 			echo '<div id="tab-2" class="tab-content">';
-			echo $current_maps = $this->getMaps();
-			echo '</div>';
+			$current_maps = $this->getMaps();
+			if($current_maps):
+			echo '<p>You can select from the maps, whih has alredy been created.</p>';
+			echo $current_maps;
+			else:
+			echo '<h4>System cannot find any content of type <em>map</em>.</h4>
+			<ul>
+			<li>Please create a map and then reload this window.</li>
+			</ul>';
 			endif;
-			echo '<div id="tab-3" class="tab-content">';
-			echo $current_maps = $this->getMapCats();
 			echo '</div>';
+			echo '<div id="tab-3" class="tab-content">';
+			$current_maps = $this->getMapCats();
+			if($current_maps):
+			echo '<p>You can select a category, and all locations in that category will then be ploted in a single map.</p>';
+			echo $current_maps;
+			echo '</div>';
+			else:
+			echo '<h4>System cannot find any category, which is being assigned to a map.</h4>
+			<ul>
+			<li>Please make sure that, you have a category under the contet type <em>map</em></li>
+			<li>Category will appear, only when it is being assigned to any content of type <em>map</em></li>
+			</ul>';
+			endif;
+			endif;
 			echo '</div>';
    echo '
 	</div>
 		 </div></div></td></tr><tr><td>';
 
-	echo '<a title="Select a map to insert" style="width:0; height:0; font-size:0; color:transparent;	" href="#TB_inline?width=600&height=550&inlineId=my-content-id" class="thickbox" id="nafs_gmap_popuptrigger">View my inline content!</a></td></tr></tbody></table>';
+	echo '<a title="Create a new map/ Select from pre-built" style="width:0; height:0; font-size:0; color:transparent;	" href="#TB_inline?width=600&height=550&inlineId=my-content-id" class="thickbox" id="nafs_gmap_popuptrigger">View my inline content!</a></td></tr></tbody></table>';
 	    $plugin_array['custom_class'] = plugin_dir_url( __FILE__ ) . 'tinymce-custom-class.js';
 	    return $plugin_array;
 		}
 	}
 function getForm()
 {
-	return '<div class="form-wrap-nafs_gmap">Enter data below to create a new map
+	return '<div class="form-wrap-nafs_gmap">Please fill in, all the boxes with appropriate values.
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-lat">Latitude</label>
 	<input type="text" name="nafs-lat" id="nafs-lat" class="form-input-tip">
@@ -107,19 +127,23 @@ function getForm()
 	</div>
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-width">Width</label>
-	<input type="text" name="nafs-width" id="nafs-width" class="form-input-tip">
+	<input type="text" name="nafs-width" id="nafs-width" class="form-input-tip" width="" placeholder="100%">
+	<div class="help">Mention number and unit (800px/100%/5em etc.)</div>
 	</div>
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-height">Height</label>
-	<input type="text" name="nafs-height" id="nafs-height" class="form-input-tip">
+	<input type="text" name="nafs-height" id="nafs-height" class="form-input-tip" placeholder="300px">
+	<div class="help">Mention number and unit (300px/5em etc.) <em>Please don\'t use "%" for height</em></div>
 	</div>
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-zoom">Zoom</label>
 	<input type="number" name="nafs-zoom" id="nafs-zoom" class="form-input-tip" min="3" max="21">
+	<div class="help">Min is 3 and Max is 21</em></div>
 	</div>
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-center">Center</label>
-	<input type="text" name="nafs-center" id="nafs-center" class="form-input-tip">
+	<input type="text" name="nafs-center" id="nafs-center" class="form-input-tip" placeholder="26.217908, 50.553557">
+	<div class="help">Enter a lat, lng value to keep it as center of the map</em></div>
 	</div>
 	<div class="nafs-form-el-wrap">
 	<label for="nafs-insert-custom">&nbsp;</label>
@@ -129,6 +153,7 @@ function getForm()
 }
 function getMapCats()
 {
+	$row_count=0;
 	$map_cats = get_categories( array(
 							'taxonomy' => 'nafs_gmap_cat'	
 							) );
@@ -149,7 +174,7 @@ function getMapCats()
 	endforeach;
    	$ret .='	</tbody>
 			</table>';
-	return $ret;
+	return $row_count?$ret:'';
 }
 function getMaps()
 {
@@ -178,7 +203,7 @@ function getMaps()
 	}
 	else
 	{
-	return '<p class="warnging">There is no content of type, <em>map</em></p>';
+	return false;
 	}
 }
 	/**

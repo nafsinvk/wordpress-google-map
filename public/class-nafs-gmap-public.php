@@ -147,7 +147,7 @@ class Nafs_Gmap_Public {
 	function gmap_shortcode( $atts, $content = null ) {
 		
 	$this->setScriptDefaults();		
-	$wrap_id=esc_attr($a['wrapper']).rand ();
+	$wrap_id=esc_attr($atts['wrapper']).rand ();
 	$a = shortcode_atts( $this->script_params, $atts ); 
 	if(isset($atts['cat_id']) and $atts['cat_id'])
 	{
@@ -160,18 +160,21 @@ class Nafs_Gmap_Public {
 	if(isset($atts['id']) and $atts['id'])
 	{
 	$this->createFromPost($atts['id']);
+	$a = shortcode_atts( $this->script_params, $atts ); 
 	}
 	$this->setMapScript($wrap_id, $a);
 	echo '<script>';
 	echo $this->map_script;
 	echo '</script>';
 	}
-	echo '<style>';
-	echo '.' . esc_attr($a['wrapper']) . "{
+	echo '<style>
+	.nafs_map_item{min-width:100px;min-height:100px;}
+	';
+	echo '.' . esc_attr($a['wrapper']) .$wrap_id. "{
 		  height: ".esc_attr($a['height']).";
 		  width : ".esc_attr($a['width'])."}";
 	echo '</style>';
-	return       '<div class="' . esc_attr($a['wrapper']) . '" id="'.$wrap_id.'">' . $content . '</div>';
+	return       '<div class="nafs_map_item ' . esc_attr($a['wrapper']) .$wrap_id. '" id="'.$wrap_id.'">' . $content . '</div>';
 	}
 	function createFromCat($id, $wrapper)
 	{

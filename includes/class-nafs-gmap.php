@@ -91,9 +91,12 @@ class Nafs_Gmap extends WP_Widget{
                 'description' => __( 'Add GoogleMap to your web pages.', 'nafs_gmaptextdomain' )
 			)
         );
+		if(is_array($options) && isset($options['naf_gmap_post_type_required']) and $options['naf_gmap_post_type_required']==1)
+		{
 		add_action( 'widgets_init', function(){
     	register_widget( $this );
 		});
+		}
 		load_plugin_textdomain( 'nafs_gmaptextdomain', false, basename( dirname( __FILE__ ) ) . '/languages' );
 		
 		
@@ -196,6 +199,7 @@ class Nafs_Gmap extends WP_Widget{
 	}
 
 public function widget( $args, $instance ) {
+	
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
